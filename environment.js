@@ -11,7 +11,7 @@ module.exports = {
 
       socket.on('disconnect', function(socket){
         console.log("Disconnection");
-        if(redis){
+        if(false){
           redis.pub.quit();
           redis.sub.quit();
           redis.getSet.quit();
