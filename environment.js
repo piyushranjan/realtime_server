@@ -5,26 +5,32 @@ module.exports = {
 
     var io = require('socket.io').listen(Number(port));
     io.on('connection', function(socket) {
+      socket.setMaxListeners(100);
       socket.on('realtime_user_id_connected', function(message) {
         console.log('Realtime User ID connected: ' + message.userId);
       });
 
-      socket.on('disconnect', function(socket){
-        console.log("Disconnection");
-        if(false){
-          redis.pub.quit();
-          redis.sub.quit();
-          redis.getSet.quit();
-        }
-      });
-
-      redis.sub.on('message', function(channel, message) {
+      var callback = function(channel, message) {
         if (socket.request === undefined) {
           return;
         }
         var msg = JSON.parse(message);
+        console.log("emit");
         socket.emit('realtime_msg', msg);
+      }
+
+      redis.sub.on('message', callback);
+      socket.on('disconnect', function(socket){
+        console.log("Disconnection");
+
+        redis.sub.removeListener('message', callback);
+
+        if(true){
+          socket = null;
+          delete socket;
+        }
       });
+
     });
 
     return io;
@@ -73,12 +79,11 @@ loadRedis: function loadRedis() {
   var redisSub, redisPub, redisGetSet = null;
 
   redisSub = redis.createClient();
-  redisPub = redis.createClient();
   redisGetSet = redis.createClient();
+  redisSub.setMaxListeners(100);
   redisSub.subscribe('realtime_msg');
 
   return {
-    pub: redisPub,
     sub: redisSub,
     getSet: redisGetSet
   };
