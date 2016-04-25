@@ -1,4 +1,4 @@
-var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: 8000 });
+var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: 11001 });
 
 wss.on('connection', function connection(ws) {
   console.log("Got connection");
