@@ -5,7 +5,8 @@ wss.on('connection', function connection(ws) {
   var redis = loadRedis();
   var callback = function(channel, message) {
     var msg = '{\"realtime_msg\": ' + message + '}';
-    ws.send(msg);
+    if(ws.readyState == 1)
+      ws.send(msg);
   }
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
